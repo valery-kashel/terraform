@@ -7,15 +7,7 @@ resource "aws_instance" "my_webserver" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.my_webserver.id]
   key_name               = "ec2 instance access"
-  user_data              = <<EOF
-#!/bin/bash
-yum -y update
-yum -y install httpd
-echo "<h2>Hello from my web server<h2>" > /var/www/html/index.html
-sudo service httpd start
-chkconfig httpd on
-EOF
-
+  user_data              = file("user_data.sh")
 }
 
 resource "aws_security_group" "my_webserver" {
