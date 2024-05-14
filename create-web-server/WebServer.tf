@@ -7,7 +7,9 @@ resource "aws_instance" "my_webserver" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.my_webserver.id]
   key_name               = "ec2 instance access"
-  user_data              = file("user_data.sh")
+  user_data              = templatefile("user_data.sh.tpl", {
+    owner = "Valery", made_by = ["Valery", "Nicolas", "Peter"]
+  })
 }
 
 resource "aws_security_group" "my_webserver" {
