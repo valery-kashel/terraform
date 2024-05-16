@@ -12,3 +12,4 @@ cat <<EOF > /var/www/html/index.html
 EOF
 sudo service httpd start
 chkconfig httpd on
+echo "hello world"

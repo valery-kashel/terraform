@@ -8,8 +8,12 @@ resource "aws_instance" "my_webserver" {
   vpc_security_group_ids = [aws_security_group.my_webserver.id]
   key_name               = "ec2 instance access"
   user_data              = templatefile("user_data.sh.tpl", {
-    owner = "Valery", made_by = ["Valery", "Nicolas", "Peter"]
+    owner = "Valery", made_by = ["Valery", "Nicolas", "Peter", "Matt"]
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group" "my_webserver" {
@@ -32,4 +36,8 @@ resource "aws_security_group" "my_webserver" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_eip" "my_static_ip" {
+  instance = aws_instance.my_webserver.id
 }
