@@ -11,7 +11,7 @@ cat <<EOF > /var/www/html/index.html
 <font color="green">Server Public Ip: <font color="aqua">$myip<br><br>
 
 <font color="magenta">
-<b>Version 3.0</b>
+<b>Version 4.0</b>
 </body>
 </html>
 EOF

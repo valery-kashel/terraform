@@ -29,28 +29,23 @@ resource "aws_security_group" "my_webserver_sg" {
   }
 }
 
-resource "aws_launch_configuration" "web" {
-  name_prefix     = "Web-LC-"
-  image_id        = "ami-07caf09b362be10b8"
-  instance_type   = "t2.micro"
-  security_groups = [aws_security_group.my_webserver_sg.id]
-  user_data       = file("user_data.sh")
-  key_name        = "ec2 instance access"
-
-  lifecycle {
-    create_before_destroy = true
-  }
+resource "aws_launch_template" "web_launch_template" {
+  name                   = "Web-LT"
+  image_id               = "ami-07caf09b362be10b8"
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.my_webserver_sg.id]
+  user_data              = filebase64("${path.module}/user_data.sh")
+  key_name               = "ec2 instance access"
 }
 
 resource "aws_autoscaling_group" "web_autoscaler" {
-  name                 = "Web Autoscaler"
-  launch_configuration = aws_launch_configuration.web.name
-  min_size             = 2
-  max_size             = 4
-  min_elb_capacity     = 2
-  health_check_type    = "ELB"
-  load_balancers       = [aws_elb.web_elb.name]
-  vpc_zone_identifier  = [
+  name                = "ASG-${aws_launch_template.web_launch_template.name}"
+  min_size            = 2
+  max_size            = 4
+  min_elb_capacity    = 2
+  health_check_type   = "ELB"
+  load_balancers      = [aws_elb.web_elb.name]
+  vpc_zone_identifier = [
     aws_default_subnet.default_subnet_1.id,
     aws_default_subnet.default_subnet_2.id
   ]
@@ -58,6 +53,11 @@ resource "aws_autoscaling_group" "web_autoscaler" {
     key                 = "Name"
     propagate_at_launch = true
     value               = "Web Server ASG"
+  }
+
+  launch_template {
+    id      = aws_launch_template.web_launch_template.id
+    version = aws_launch_template.web_launch_template.latest_version
   }
 
   lifecycle {
